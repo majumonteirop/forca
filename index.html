@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #palavra { font-size: 24px; letter-spacing: 8px; }
+        #letras-erradas { color: red; }
+        .tecla { margin: 5px; padding: 10px; font-size: 18px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Jogo da Forca</h1>
+    <label for="palavra-input">Digite uma palavra personalizada:</label>
+    <input type="text" id="palavra-input" maxlength="15" autocomplete="off">
+    <button onclick="iniciarJogo()">Iniciar Jogo</button>
+    <p id="palavra">_ _ _ _ _</p>
+    <p id="palavra-oculta" style="color: gray;"></p>
+    <p>Tentativas restantes: <span id="tentativas">6</span></p>
+    <p>Letras erradas: <span id="letras-erradas"></span></p>
+    <div id="teclado"></div>
+    <script>
+        let palavraSecreta = "";
+        let palavraOculta = [];
+        let tentativas = 6;
+        let letrasErradas = [];
+
+        function iniciarJogo() {
+            let inputPalavra = document.getElementById("palavra-input").value.trim().toLowerCase();
+
+            if (inputPalavra === "") {
+                alert("Digite uma palavra válida.");
+                return;
+            }
+
+            document.getElementById("palavra-input").style.display = "none";
+            document.querySelector("label").style.display = "none";
+            document.querySelector("button").style.display = "none";
+
+            palavraSecreta = inputPalavra;
+            palavraOculta = Array(palavraSecreta.length).fill("_");
+            tentativas = 6;
+            letrasErradas = [];
+            document.getElementById("palavra").textContent = palavraOculta.join(" ");
+            document.getElementById("palavra-oculta").textContent = "Palavra secreta: " + "*".repeat(palavraSecreta.length);
+            document.getElementById("tentativas").textContent = tentativas;
+            document.getElementById("letras-erradas").textContent = "";
+            document.getElementById("teclado").innerHTML = "";
+            criarTeclado();
+        }
+
+        function criarTeclado() {
+            const alfabeto = "abcdefghijklmnopqrstuvwxyz";
+            const teclado = document.getElementById("teclado");
+            alfabeto.split("").forEach(letra => {
+                let btn = document.createElement("button");
+                btn.textContent = letra;
+                btn.classList.add("tecla");
+                btn.onclick = () => tentarLetra(letra, btn);
+                teclado.appendChild(btn);
+            });
+        }
+
+        function tentarLetra(letra, botao) {
+            botao.disabled = true;
+            if (palavraSecreta.includes(letra)) {
+                for (let i = 0; i < palavraSecreta.length; i++) {
+                    if (palavraSecreta[i] === letra) palavraOculta[i] = letra;
+                }
+            } else {
+                letrasErradas.push(letra);
+                tentativas--;
+                document.getElementById("tentativas").textContent = tentativas;
+                document.getElementById("letras-erradas").textContent = letrasErradas.join(", ");
+            }
+            document.getElementById("palavra").textContent = palavraOculta.join(" ");
+            verificarFimDeJogo();
+        }
+
+        function verificarFimDeJogo() {
+            if (!palavraOculta.includes("_")) {
+                alert("🎉 Você venceu! A palavra era: " + palavraSecreta);
+                location.reload();
+            } else if (tentativas === 0) {
+                alert("💀 Você perdeu! A palavra era: " + palavraSecreta);
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
+
